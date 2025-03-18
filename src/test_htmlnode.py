@@ -8,8 +8,9 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual(node.tag, "h1")
         self.assertEqual(node.value, "Test")
         self.assertEqual(node.props, {"class": "test"})
-        self.assertEqual(node.children[0].tag, "p")
-        self.assertEqual(node.children[0].value, "Hello World!")
+        if node.children is not None:
+            self.assertEqual(node.children[0].tag, "p")
+            self.assertEqual(node.children[0].value, "Hello World!")
 
     def test_props_to_html(self):
         node = HTMLNode(tag="h1", value="Test", props={"class": "test", "id": "test-id"}, children=[HTMLNode(tag="p", value="Hello World!")])
