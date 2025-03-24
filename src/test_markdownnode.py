@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from markdownnote import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
+from markdownnote import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_text_with_code(self):
@@ -283,6 +283,48 @@ class TestTextToTextNodes(unittest.TestCase):
             ]
         )
 
+class TestSplitBlocks(unittest.TestCase):
+    def test_markdown_to_blocks_bootdev(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+        """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+    def test_markdown_to_blocks_with_too_many_newlines(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+
+- This is a list
+- with items
+            """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
 
 if __name__ == '__main__':
     unittest.main()

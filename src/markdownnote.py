@@ -87,3 +87,9 @@ def text_to_textnodes(text: str) -> list[TextNode]:
     for delim, text_type in [("**", TextType.BOLD), ("_", TextType.ITALIC), ("`", TextType.CODE)]:
         nodes = split_nodes_delimiter(nodes, delim, text_type)
     return nodes
+
+def markdown_to_blocks(markdown: str):
+    blocks = markdown.split("\n\n")
+    blocks = [block.strip() for block in blocks]
+    blocks = [block for block in blocks if len(block) > 0]
+    return blocks
