@@ -1,4 +1,5 @@
 from enum import Enum
+import re
 from htmlnode import LeafNode
 
 class TextType(Enum):
@@ -8,6 +9,47 @@ class TextType(Enum):
     CODE = "code"
     LINK = "link"
     IMAGE = "image"
+
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
+
+def block_to_blocktype(markdown_block:str) -> BlockType:
+    heading = re.compile("^#{1,6} \S+")
+    code = re.compile("^```(?s:.)*```$")
+    quote = re.compile("^>.+", re.MULTILINE)
+    unordered_list = re.compile("^- .*", re.MULTILINE)
+    ordered_list = re.compile("^1\. ")
+
+    if heading.match(markdown_block):
+        return BlockType.HEADING
+    if code.match(markdown_block):
+        return BlockType.CODE
+    if quote.match(markdown_block):
+        # make sure each line starts with a '>'
+        for line in markdown_block.splitlines():
+            if not line.startswith(">"):
+                return BlockType.PARAGRAPH
+        return BlockType.QUOTE
+    if unordered_list.match(markdown_block):
+        # make sure each line starts with a '- '
+        for line in markdown_block.splitlines():
+            if not line.startswith("- "):
+                return BlockType.PARAGRAPH
+        return BlockType.UNORDERED_LIST
+    if ordered_list.match(markdown_block):
+        digit = 1
+        for line in markdown_block.splitlines():
+            if not line.startswith(f"{digit}. "):
+                return BlockType.PARAGRAPH
+            digit += 1
+        return BlockType.ORDERED_LIST
+
+    return BlockType.PARAGRAPH
 
 class TextNode:
     def __init__(self, text:str, text_type:TextType, url=None) -> None:

@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node
+from textnode import BlockType, TextNode, TextType, block_to_blocktype, text_node_to_html_node
 
 
 class TestTextNode(unittest.TestCase):
@@ -73,6 +73,82 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(html_node.props, {"alt": "image", "src": "/path/to/image"})
         self.assertEqual(html_node.value, "")
 
+class TestBlockToBlockType(unittest.TestCase):
+    def test_heading_h1(self):
+        result = block_to_blocktype("# H1 Header")
+        self.assertEqual(
+            BlockType.HEADING, result
+        )
+    def test_heading_h6(self):
+        result = block_to_blocktype("###### H6 Header")
+        self.assertEqual(
+            BlockType.HEADING, result
+        )
+    def test_heading_no_space(self):
+        result = block_to_blocktype("###H3 Header without space after hashes")
+        self.assertEqual(
+            BlockType.PARAGRAPH, result
+        )
+    def test_code_empty(self):
+        result = block_to_blocktype("``````")
+        self.assertEqual(
+            BlockType.CODE, result
+        )
+    def test_code_example(self):
+        result = block_to_blocktype("```def hello(param):\n\tprint(f\"Hello {param}!\")```")
+        self.assertEqual(
+            BlockType.CODE, result
+        )
+    def test_code_invalid(self):
+        result = block_to_blocktype("``one backtick is missing in the front```")
+        self.assertEqual(
+            BlockType.PARAGRAPH, result
+        )
+    def test_quote_single_line(self):
+        result = block_to_blocktype("> Be careful that you write accurately rather than much. - Erasmus")
+        self.assertEqual(
+            BlockType.QUOTE, result
+        )
+    def test_quote_multiple_lines(self):
+        result = block_to_blocktype("> Be careful that you write accurately rather than much.\n> - Erasmus")
+        self.assertEqual(
+            BlockType.QUOTE, result
+        )
+    def test_quote_invalid(self):
+        result = block_to_blocktype("> Be careful that you write accurately rather than much.\n- Erasmus")
+        self.assertEqual(
+            BlockType.PARAGRAPH, result
+        )
+    def test_unordered_list_single_line(self):
+        result = block_to_blocktype("- apples")
+        self.assertEqual(
+            BlockType.UNORDERED_LIST, result
+        )
+    def test_unordered_list_multiple_lines(self):
+        result = block_to_blocktype("- apples\n- oranges\n- bananas")
+        self.assertEqual(
+            BlockType.UNORDERED_LIST, result
+        )
+    def test_unordered_list_invalid(self):
+        result = block_to_blocktype("- apples\n- oranges\n -bananas")
+        self.assertEqual(
+            BlockType.PARAGRAPH, result
+        )
+    def test_ordered_list_single_line(self):
+        result = block_to_blocktype("1. apples")
+        self.assertEqual(
+            BlockType.ORDERED_LIST, result
+        )
+    def test_ordered_list_multiple_lines(self):
+        result = block_to_blocktype("1. apples\n2. oranges\n3. bananas")
+        self.assertEqual(
+            BlockType.ORDERED_LIST, result
+        )
+    def test_ordered_list_invalid(self):
+        result = block_to_blocktype("1. apples\n2. oranges\n3.bananas")
+        self.assertEqual(
+            BlockType.PARAGRAPH, result
+        )
 
 if __name__ == "__main__":
     unittest.main()
