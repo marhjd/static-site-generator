@@ -66,7 +66,7 @@ class TextNode:
         """TextNode(TEXT, TEXT_TYPE, URL)"""
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
 
-def text_node_to_html_node(text_node : TextNode):
+def text_node_to_html_node(text_node : TextNode) -> LeafNode:
     """Converts a TextNode to an equivalent HTMLNode (LeafNode) representation."""
     match text_node.text_type:
         case TextType.TEXT:
