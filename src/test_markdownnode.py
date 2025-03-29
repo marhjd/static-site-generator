@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from markdownnote import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks, markdown_to_html_node
+from markdownnote import extract_title, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks, markdown_to_html_node
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_text_with_code(self):
@@ -175,6 +175,30 @@ class TestExtractMarkdownLinks(unittest.TestCase):
             result,
             []
         )
+
+class TestExtractMarkdownTitle(unittest.TestCase):
+    def test_extract_h1(self):
+        title, _ = extract_title("# Hello")
+        self.assertEqual(
+            "Hello",
+            title
+        )
+    def test_extract_h1_additional_whitespace(self):
+        title, _ = extract_title("#    Hello  ")
+        self.assertEqual(
+            "Hello",
+            title
+        )
+    def test_extract_h1_additional_text(self):
+        title, _ = extract_title("# Hello\n This is more text")
+        self.assertEqual(
+            "Hello",
+            title
+        )
+    def test_extract_h1_invalid(self):
+        with self.assertRaises(ValueError):
+            title, _ = extract_title("## Hello")
+
 
 class TestSplitNodesImageAndLinks(unittest.TestCase):
     def test_split_images(self):

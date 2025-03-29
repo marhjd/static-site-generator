@@ -1,5 +1,7 @@
+import os
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import BlockType, TextNode, TextType, block_to_blocktype, text_node_to_html_node
+from typing import Tuple
 import re
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -27,6 +29,14 @@ def extract_markdown_images(text:str):
 
 def extract_markdown_links(text:str):
     return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def extract_title(title: str) -> Tuple[str, str]:
+    if title.startswith("# "):
+        split = title[1:].split("\n", 2)
+        if len(split) > 1:
+            return split[0].strip(), split[1]
+        return split[0].strip(), ""
+    raise ValueError(f"title does not start with '# ' {title}")
 
 def split_nodes_image(old_nodes: list[TextNode]):
     new_nodes = []
@@ -184,3 +194,21 @@ def quote_to_html_node(block):
     content = " ".join(new_lines)
     children = text_to_children(content)
     return ParentNode("blockquote", children)
+
+def generate_page(from_path: os.PathLike, template_path: os.PathLike, dest_path: os.PathLike):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+
+    markdown = ""
+    template_content = ""
+
+    with open(from_path) as src:
+        markdown = src.read()
+    with open(template_path) as src:
+        template_content = src.read()
+
+    parent = markdown_to_html_node(markdown)
+    html = parent.to_html()
+    title = extract_title(markdown)
+
+    html.replace("{{ Title }}", title)
+    html.replace("{{ Content }}", markdown)
