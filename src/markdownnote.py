@@ -208,7 +208,12 @@ def generate_page(from_path: os.PathLike, template_path: os.PathLike, dest_path:
 
     parent = markdown_to_html_node(markdown)
     html = parent.to_html()
-    title = extract_title(markdown)
+    title, _ = extract_title(markdown)
 
-    html.replace("{{ Title }}", title)
-    html.replace("{{ Content }}", markdown)
+    final = template_content.replace("{{ Title }}", title)
+    final = final.replace("{{ Content }}", html)
+
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    with open(dest_path, "w") as dst:
+        dst.write(final)
+        dst.close()

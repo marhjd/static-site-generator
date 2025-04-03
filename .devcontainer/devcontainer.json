@@ -1,4 +1,5 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    "postCreateCommand": "sh .devcontainer/setup.sh"
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  // "postCreateCommand": "sh .devcontainer/setup.sh",
+  "forwardPorts": [8888]
 }
