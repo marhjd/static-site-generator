@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import BlockType, TextNode, TextType, block_to_blocktype, text_node_to_html_node
 from typing import Tuple
@@ -195,7 +196,7 @@ def quote_to_html_node(block):
     children = text_to_children(content)
     return ParentNode("blockquote", children)
 
-def generate_page(from_path: os.PathLike, template_path: os.PathLike, dest_path: os.PathLike):
+def generate_page(from_path: os.PathLike, template_path: os.PathLike, dest_path: os.PathLike, basepath: os.PathLike):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     markdown = ""
@@ -213,7 +214,20 @@ def generate_page(from_path: os.PathLike, template_path: os.PathLike, dest_path:
     final = template_content.replace("{{ Title }}", title)
     final = final.replace("{{ Content }}", html)
 
+    final = final.replace('href="/', f'href="{basepath}/')
+    final = final.replace('src="/', f'src="{basepath}/')
+
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     with open(dest_path, "w") as dst:
         dst.write(final)
         dst.close()
+
+def genereate_pages_recursive(dir_path_content: os.PathLike, template_path: os.PathLike, dest_dir_path: os.PathLike, basepath: os.PathLike):
+    for filename in os.listdir(dir_path_content):
+        from_path = Path(os.path.join(dir_path_content, filename))
+        dest_path = Path(os.path.join(dest_dir_path, filename))
+        if os.path.isfile(from_path):
+            dest_path = Path(dest_path).with_suffix(".html")
+            generate_page(from_path, template_path, dest_path, basepath)
+        else:
+            genereate_pages_recursive(from_path, template_path, dest_path, basepath)
